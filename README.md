@@ -103,5 +103,129 @@ To keep the project consistent:
      margarita: 'Margarita'
    };
 
+   Create Markdown
 
+2. **Create Markdown**
+   - Save as margaritaDescription.md in descriptions/
+   - Include sections: Ingredients and Description
+
+3. **Add Image**
+   - Save as margaritaDescription.png in images/
+
+4. **Generate QR Code**
+   - Link: ?cocktail=margarita
+   - Save QR in qr-codes/
+
+5. **Setup Payment/Stock**
+   - Add new ingredients to DB if needed
+   - Ensure payment system recognizes new item
+
+## 6. Frontend
+
+A minimalistic UI with:
+
+1. Drink Image: Quick visual representation for the user.
+
+2. Drink Name: Clearly identifies the selected drink (“Margarita,” “Zombie,” etc.).
+
+3. Description & Ingredients: Pulled from the Markdown file, providing flavor notes, allergy info, or background.
+
+4. “Order Now” Button:
+
+   - Triggers the system to check ingredient availability.
+
+   - Processes dummy payment if stock is available.
+
+   - Queues the order for robotic preparation.
+
+   - Disables the button or shows a success/error message.
+
+If the order is placed successfully, the user sees an Order ID. If not, an error is displayed. Status changes (like “Awaiting Restock” or “Drink in Preparation”) can be displayed to the user as well.
+
+## 7. Backend
+
+Our Node.js Express backend coordinates data flow:
+
+1. ### Dependencies
+
+   - Express for HTTP routes.
+
+   - sqlite3 for persistent data storage.
+
+   - axios for HTTP requests (if needed).
+
+   - EventEmitter (optional) for event-driven notifications.
+  
+2. ### Database
+
+   #### orders table
+
+| Field     | Type     | Description                                                                 |
+|-----------|----------|-----------------------------------------------------------------------------|
+| id        | INTEGER  | Unique auto-incrementing order ID                                           |
+| details   | TEXT     | JSON or text details describing the drink (e.g., cocktail name, extra info) |
+| status    | TEXT     | Current status of the order (e.g., `queued`, `paid`, `robot_processing`, `finished`) |
+| timestamp | DATETIME | Timestamp of when the order was created   
+
+#### stock Table (Optional)
+
+| Field        | Type    | Description                                  |
+|--------------|---------|----------------------------------------------|
+| ingredientId | INTEGER | Unique identifier for each ingredient        |
+| quantity     | INTEGER | How many units are currently in stock        |
+
+#### callbacks Table (Optional for CPEE)
+
+| Field   | Type    | Description                                                      |
+|---------|---------|------------------------------------------------------------------|
+| id      | INTEGER | Unique auto-incrementing callback ID                             |
+| address | TEXT    | Callback URL or endpoint for future notifications (e.g., CPEE)   |
+
+
+3. ### API Routes
+
+- **POST** `/order`  
+  Creates a new cocktail order.
+
+- **PUT** `/check-stock/:orderId`  
+  Verifies ingredient availability.
+
+- **PUT** `/restock-request/:ingredientId`  
+  Requests restock for a missing ingredient.
+
+- **PUT** `/payment/:orderId`  
+  Mock payment endpoint.
+
+- **GET** `/work-order`  
+  Robot (or CPEE) fetches the oldest open order.
+
+- **PUT** `/finished/:orderId`  
+  Marks an order as finished.
+
+4. ### Event Handling
+
+- **On a new order**: Emit an `orderAvailable` event (optional).  
+- **On restock**: Trigger a re-check of waiting orders.  
+- **On payment success**: Update the order’s status to `paid`.
+
+## 8. CPEE (Cloud Process Execution Engine)
+
+Our CPEE workflow coordinates each step:
+
+1. **Check Stock** → If not available, restock.  
+2. **Payment** → If it fails, notify the user; if successful, proceed.  
+3. **Robot Flow** → `GET /work-order` + preparation.  
+4. **Finish** → `PUT /finished/:orderId`.
+
+The `cpee-graph.xml` file encodes this flow, covering:
+
+- **Stock checks**  
+- **Payment branches** (success/fail)  
+- **Automated drink preparation**  
+- **Looping** to find the next open order
+
+## Conclusion
+This README outlines a QR code-based robotic drink ordering system. By combining a simple frontend interface, a Node.js backend, and a workflow engine (e.g., CPEE), you can build a fully automated solution that checks stock, manages payments, triggers restocking, and prepares drinks via a robot—while providing real-time user feedback.
+
+Feel free to adapt the naming scheme, database structure, or logic as needed. Happy building!
 
