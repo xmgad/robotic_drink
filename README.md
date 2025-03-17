@@ -70,9 +70,11 @@ Contains the **CPEE process definition** that can be imported into the **Cloud P
 
 ## 4. Naming Scheme
 
-Attempt | #1 | #2 | #3 | #4 | #5 | #6 | #7 | #8 | #9 | #10 | #11
+Asset Type | Format | Example
 --- | --- | --- | --- |--- |--- |--- |--- |--- |--- |--- |---
-Seconds | 301 | 283 | 290 | 286 | 289 | 285 | 287 | 287 | 272 | 276 | 269
+Description | <urlSearchParam>Description.md | margaritaDescription.md
+--- | --- | --- | --- |--- |--- |--- |--- |--- |--- |---
+Image | <urlSearchParam>Description.<ext>	 | margaritaDescription.png 
 
 To keep the project consistent:
 
